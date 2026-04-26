@@ -359,6 +359,16 @@
     <h1>🤿 琉潛潛水行程費用計算器</h1>
   </header>
 
+  <!-- 行程日期 -->
+  <div class="card">
+    <div class="card-title"><span>📅</span> 行程日期</div>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <input type="date" id="dateStart" oninput="calc()" style="flex:1; min-width:130px; background:rgba(255,255,255,0.1); border:1px solid rgba(125,211,252,0.3); border-radius:8px; color:#e8f4fd; font-size:0.9rem; padding:6px 10px; outline:none;">
+      <span style="color:#93c5fd;">─</span>
+      <input type="date" id="dateEnd" oninput="calc()" style="flex:1; min-width:130px; background:rgba(255,255,255,0.1); border:1px solid rgba(125,211,252,0.3); border-radius:8px; color:#e8f4fd; font-size:0.9rem; padding:6px 10px; outline:none;">
+    </div>
+  </div>
+
   <!-- 住宿 -->
   <div class="card">
     <div class="card-title"><span>🛏️</span> 住宿</div>
@@ -588,7 +598,7 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">🤿 個人費用明細</span>
+      <span class="modal-title" id="modalTitle">🤿 個人費用明細</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div id="modalBody"></div>
@@ -746,6 +756,7 @@
 
     n('modalBody').innerHTML = html;
     n('modalTotal').textContent = total.toLocaleString() + ' 元';
+    n('modalTitle').textContent = `🤿 個人費用明細${getDateLabel()}`;
     n('copiedHint').textContent = '';
     n('modalOverlay').classList.add('open');
   }
@@ -753,10 +764,19 @@
   function closeModal() { n('modalOverlay').classList.remove('open'); }
   function closeModalOutside(e) { if (e.target === n('modalOverlay')) closeModal(); }
 
+  function getDateLabel() {
+    const s = n('dateStart').value, e = n('dateEnd').value;
+    if (!s && !e) return '';
+    const fmt = v => { const d = new Date(v); return `${d.getMonth()+1}/${d.getDate()}`; };
+    if (s && e) return `（${fmt(s)}–${fmt(e)}）`;
+    if (s) return `（${fmt(s)}）`;
+    return `（${fmt(e)}）`;
+  }
+
   function copyDetail() {
     const sections = buildDetail();
     const total = sections.reduce((s, sec) => s + sec.items.reduce((a, i) => a + i.amount, 0), 0);
-    let text = '🤿 潛水行程費用明細（5/9–5/11）\n';
+    let text = `🤿 琉潛潛水行程費用明細${getDateLabel()}\n`;
     text += '─'.repeat(28) + '\n';
     sections.forEach(sec => {
       text += `\n【${sec.title}】\n`;
