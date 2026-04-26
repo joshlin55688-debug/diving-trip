@@ -226,6 +226,127 @@
     }
     .summary-total .label { font-size: 1rem; color: #7dd3fc; }
 
+    .output-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 16px;
+      padding: 11px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .output-btn:hover { opacity: 0.85; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0d2444;
+      border: 1px solid rgba(125,211,252,0.3);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #7dd3fc; }
+    .modal-close {
+      background: none; border: none;
+      color: #93c5fd; font-size: 1.4rem;
+      cursor: pointer; line-height: 1;
+    }
+    .detail-section { margin-bottom: 14px; }
+    .detail-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #bfdbfe;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .detail-item:last-child { border-bottom: none; }
+    .detail-divider {
+      border: none;
+      border-top: 1px solid rgba(125,211,252,0.25);
+      margin: 14px 0;
+    }
+    .detail-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.8; }
+    .btn-copy { background: rgba(56,189,248,0.2); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.4); }
+    .btn-print { background: #0284c7; color: #fff; }
+    .copied-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4ade80;
+      margin-top: 8px;
+      height: 16px;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 24px; }
+      .container, .modal-overlay { display: block !important; }
+      .card, .summary-card { display: none; }
+      .modal-overlay { position: static; background: none; padding: 0; }
+      .modal { border: none; background: none; padding: 0; max-height: none; }
+      .modal-header, .modal-actions, .modal-close, .copied-hint { display: none !important; }
+      .detail-section-title { color: #0369a1; }
+      .detail-item, .detail-total { color: #000; }
+      .detail-divider { border-color: #ccc; }
+    }
+
     @media (max-width: 480px) {
       header h1 { font-size: 1.5rem; }
       .card { padding: 16px; }
@@ -460,6 +581,28 @@
       <span class="label">總計</span>
       <span id="s-total">0 元</span>
     </div>
+    <button class="output-btn" onclick="openModal()">📋 查看完整明細 / 輸出</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🤿 個人費用明細</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+    <hr class="detail-divider">
+    <div class="detail-total">
+      <span>總計</span>
+      <span id="modalTotal">0 元</span>
+    </div>
+    <div class="modal-actions">
+      <button class="action-btn btn-copy" onclick="copyDetail()">📋 複製文字</button>
+      <button class="action-btn btn-print" onclick="printDetail()">🖨️ 列印 / 存 PDF</button>
+    </div>
+    <div class="copied-hint" id="copiedHint"></div>
   </div>
 </div>
 
@@ -530,6 +673,110 @@
     const el = n(id);
     el.innerHTML = `<span>${label}</span><span>${value > 0 ? value.toLocaleString() + ' 元' : '─'}</span>`;
     el.className = 'summary-line' + (value === 0 ? ' zero' : '');
+  }
+
+  function buildDetail() {
+    const discount = checked('studentDiscount');
+    const nights = val('nights');
+    const roomPrice = selectedRoom;
+    const roomName = roomPrice === 700 ? '女生床位' : roomPrice === 600 ? '混合床位' : null;
+
+    const sections = [];
+
+    // 住宿
+    if (roomName && nights > 0) {
+      sections.push({ title: '住宿', items: [
+        { label: `${roomName} × ${nights} 晚`, amount: roomPrice * nights }
+      ]});
+    }
+
+    // 潛水
+    const diveItems = [];
+    if (val('nightDive') > 0) diveItems.push({ label: `夜潛 × ${val('nightDive')} 次`, amount: val('nightDive') * 1050 });
+    if (val('shoreDive') > 0) diveItems.push({ label: `岸潛 × ${val('shoreDive')} 次`, amount: val('shoreDive') * 600 });
+    if (val('boatDive')  > 0) diveItems.push({ label: `船潛 × ${val('boatDive')} 次`,  amount: val('boatDive')  * 3000 });
+    if (diveItems.length) sections.push({ title: '潛水活動', items: diveItems });
+
+    // 交通
+    const transItems = [];
+    if (checked('ferry')) transItems.push({ label: '船票（來回）', amount: 420 });
+    if (checked('scooter')) {
+      const days = val('scooterDays'), people = Math.max(1, val('scooterPeople'));
+      transItems.push({ label: `機車 ${days}天 ÷ ${people}人`, amount: Math.round(400 * days / people) });
+    }
+    if (transItems.length) sections.push({ title: '交通', items: transItems });
+
+    // 裝備
+    const gearItems = [];
+    const gearList = [
+      ['mask','面鏡',100,'maskDays'], ['snorkel','呼吸管',100,'snorkelDays'],
+      ['wetsuit','防寒衣',150,'wetsuitDays'], ['boots','套鞋',50,'bootsDays'],
+      ['fins','蛙鞋',100,'finsDays'], ['bcd','重裝（BCD+調節器）',600,'bcdDays'],
+      ['fullset','全套（輕裝+重裝）',1000,'fullsetDays'],
+      ['computer','電腦錶',300,'computerDays'], ['torch','手電筒',200,'torchDays']
+    ];
+    gearList.forEach(([id, name, price, daysId]) => {
+      if (!checked(id)) return;
+      const d = val(daysId);
+      const amt = applyDiscount(price * d);
+      const discTag = discount ? ` (八折)` : '';
+      gearItems.push({ label: `${name} × ${d} 天${discTag}`, amount: amt });
+    });
+    if (gearItems.length) sections.push({ title: `裝備租借${discount ? '（學生八折）' : ''}`, items: gearItems });
+
+    return sections;
+  }
+
+  function openModal() {
+    const sections = buildDetail();
+    const total = sections.reduce((s, sec) => s + sec.items.reduce((a, i) => a + i.amount, 0), 0);
+
+    let html = '';
+    if (sections.length === 0) {
+      html = '<p style="color:#93c5fd;font-size:0.9rem;text-align:center;padding:16px 0">尚未選擇任何項目</p>';
+    } else {
+      sections.forEach(sec => {
+        html += `<div class="detail-section">
+          <div class="detail-section-title">${sec.title}</div>`;
+        sec.items.forEach(item => {
+          html += `<div class="detail-item"><span>${item.label}</span><span>${item.amount.toLocaleString()} 元</span></div>`;
+        });
+        html += `</div>`;
+      });
+    }
+
+    n('modalBody').innerHTML = html;
+    n('modalTotal').textContent = total.toLocaleString() + ' 元';
+    n('copiedHint').textContent = '';
+    n('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { n('modalOverlay').classList.remove('open'); }
+  function closeModalOutside(e) { if (e.target === n('modalOverlay')) closeModal(); }
+
+  function copyDetail() {
+    const sections = buildDetail();
+    const total = sections.reduce((s, sec) => s + sec.items.reduce((a, i) => a + i.amount, 0), 0);
+    let text = '🤿 潛水行程費用明細（5/9–5/11）\n';
+    text += '─'.repeat(28) + '\n';
+    sections.forEach(sec => {
+      text += `\n【${sec.title}】\n`;
+      sec.items.forEach(item => {
+        text += `  ${item.label.padEnd(18)}${item.amount.toLocaleString()} 元\n`;
+      });
+    });
+    text += '\n' + '─'.repeat(28) + '\n';
+    text += `總計：${total.toLocaleString()} 元`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      n('copiedHint').textContent = '✓ 已複製到剪貼簿！';
+      setTimeout(() => n('copiedHint').textContent = '', 2500);
+    });
+  }
+
+  function printDetail() {
+    n('modalOverlay').classList.add('open');
+    window.print();
   }
 
   calc();
