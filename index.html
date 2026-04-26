@@ -131,6 +131,20 @@
       border-color: #38bdf8;
     }
 
+    .qty-btn {
+      width: 28px; height: 28px;
+      background: rgba(56,189,248,0.15);
+      border: 1px solid rgba(56,189,248,0.4);
+      border-radius: 8px;
+      color: #7dd3fc;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .qty-btn:hover { background: rgba(56,189,248,0.3); }
+
     .scooter-row {
       display: flex;
       align-items: center;
@@ -251,38 +265,45 @@
     <div class="card-title"><span>🌊</span> 潛水活動</div>
     <div class="row">
       <div class="row-left">
-        <input type="checkbox" id="nd1" onchange="calc()">
-        <label for="nd1"><div class="row-label">5/9 夜潛</div></label>
+        <div>
+          <div class="row-label">夜潛</div>
+          <div class="row-sub">1,050 元／次</div>
+        </div>
       </div>
-      <span class="price-tag">1,050 元</span>
+      <div class="row-right">
+        <button class="qty-btn" onclick="stepQty('nightDive',-1)">－</button>
+        <input type="number" id="nightDive" value="0" min="0" max="2" oninput="calc()" style="width:48px">
+        <button class="qty-btn" onclick="stepQty('nightDive',1)">＋</button>
+        <span class="nights-label">次</span>
+      </div>
     </div>
     <div class="row">
       <div class="row-left">
-        <input type="checkbox" id="nd2" onchange="calc()">
-        <label for="nd2"><div class="row-label">5/10 夜潛</div></label>
+        <div>
+          <div class="row-label">岸潛</div>
+          <div class="row-sub">600 元／次</div>
+        </div>
       </div>
-      <span class="price-tag">1,050 元</span>
+      <div class="row-right">
+        <button class="qty-btn" onclick="stepQty('shoreDive',-1)">－</button>
+        <input type="number" id="shoreDive" value="0" min="0" max="5" oninput="calc()" style="width:48px">
+        <button class="qty-btn" onclick="stepQty('shoreDive',1)">＋</button>
+        <span class="nights-label">次</span>
+      </div>
     </div>
     <div class="row">
       <div class="row-left">
-        <input type="checkbox" id="sd1" onchange="calc()">
-        <label for="sd1"><div class="row-label">5/9 岸潛</div></label>
+        <div>
+          <div class="row-label">船潛</div>
+          <div class="row-sub">3,000 元／次（共 2 支）</div>
+        </div>
       </div>
-      <span class="price-tag">600 元</span>
-    </div>
-    <div class="row">
-      <div class="row-left">
-        <input type="checkbox" id="bd1" onchange="calc()">
-        <label for="bd1"><div class="row-label">5/10 早上船潛</div></label>
+      <div class="row-right">
+        <button class="qty-btn" onclick="stepQty('boatDive',-1)">－</button>
+        <input type="number" id="boatDive" value="0" min="0" max="2" oninput="calc()" style="width:48px">
+        <button class="qty-btn" onclick="stepQty('boatDive',1)">＋</button>
+        <span class="nights-label">次</span>
       </div>
-      <span class="price-tag">3,000 元</span>
-    </div>
-    <div class="row">
-      <div class="row-left">
-        <input type="checkbox" id="bd2" onchange="calc()">
-        <label for="bd2"><div class="row-label">5/11 早上船潛</div></label>
-      </div>
-      <span class="price-tag">3,000 元</span>
     </div>
   </div>
 
@@ -452,6 +473,14 @@
     calc();
   }
 
+  function stepQty(id, delta) {
+    const el = document.getElementById(id);
+    const min = parseInt(el.min) || 0;
+    const max = parseInt(el.max) || 99;
+    el.value = Math.min(max, Math.max(min, (parseInt(el.value) || 0) + delta));
+    calc();
+  }
+
   function n(id) { return document.getElementById(id); }
   function checked(id) { return n(id).checked; }
   function val(id) { return Math.max(0, parseInt(n(id).value) || 0); }
@@ -465,11 +494,9 @@
     const accommodation = selectedRoom * nights;
 
     let diving = 0;
-    if (checked('nd1')) diving += 1050;
-    if (checked('nd2')) diving += 1050;
-    if (checked('sd1')) diving += 600;
-    if (checked('bd1')) diving += 3000;
-    if (checked('bd2')) diving += 3000;
+    diving += val('nightDive') * 1050;
+    diving += val('shoreDive') * 600;
+    diving += val('boatDive')  * 3000;
 
     let transport = 0;
     if (checked('ferry')) transport += 420;
