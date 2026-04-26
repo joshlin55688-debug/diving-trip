@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>潛水行程費用計算器 🤿</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0d3b6e 50%, #0a5c8a 100%);
+      min-height: 100vh;
+      color: #e8f4fd;
+      padding: 24px 16px 60px;
+    }
+
+    .container { max-width: 680px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #7dd3fc;
+      text-shadow: 0 0 20px rgba(125,211,252,0.4);
+    }
+    header p { color: #93c5fd; margin-top: 6px; font-size: 0.9rem; }
+
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(125,211,252,0.2);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #7dd3fc;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title span { font-size: 1.2rem; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .row:last-child { border-bottom: none; }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .price-tag {
+      font-size: 0.75rem;
+      color: #60a5fa;
+      background: rgba(96,165,250,0.15);
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .row-label { font-size: 0.9rem; }
+    .row-sub { font-size: 0.75rem; color: #93c5fd; }
+
+    input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: #38bdf8;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    input[type="number"] {
+      width: 64px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(125,211,252,0.3);
+      border-radius: 8px;
+      color: #e8f4fd;
+      font-size: 0.9rem;
+      padding: 4px 8px;
+      text-align: center;
+      outline: none;
+    }
+    input[type="number"]:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56,189,248,0.2);
+    }
+
+    .nights-label { font-size: 0.8rem; color: #93c5fd; }
+
+    .radio-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(125,211,252,0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+    .radio-option:hover { background: rgba(56,189,248,0.1); border-color: #38bdf8; }
+    .radio-option input[type="radio"] {
+      accent-color: #38bdf8;
+      width: 15px; height: 15px;
+    }
+    .radio-option.selected {
+      background: rgba(56,189,248,0.15);
+      border-color: #38bdf8;
+    }
+
+    .scooter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: #bfdbfe;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 0;
+    }
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .slider:before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    input:checked + .slider { background: #0284c7; }
+    input:checked + .slider:before { transform: translateX(20px); }
+    .toggle-label { font-size: 0.85rem; }
+    .toggle-label strong { color: #fbbf24; }
+
+    .summary-card {
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(14,165,233,0.1));
+      border: 1px solid rgba(56,189,248,0.4);
+      border-radius: 16px;
+      padding: 24px;
+      position: sticky;
+      bottom: 16px;
+      backdrop-filter: blur(20px);
+    }
+    .summary-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #7dd3fc;
+      margin-bottom: 14px;
+    }
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #bfdbfe;
+      padding: 4px 0;
+    }
+    .summary-line.zero { opacity: 0.35; }
+    .summary-divider {
+      border: none;
+      border-top: 1px solid rgba(125,211,252,0.3);
+      margin: 12px 0;
+    }
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .summary-total .label { font-size: 1rem; color: #7dd3fc; }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.5rem; }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🤿 潛水行程費用計算器</h1>
+    <p>5月9日 ─ 5月11日・個人費用試算</p>
+  </header>
+
+  <!-- 住宿 -->
+  <div class="card">
+    <div class="card-title"><span>🛏️</span> 住宿</div>
+    <div class="radio-group" id="roomType">
+      <label class="radio-option" onclick="setRoom(this)">
+        <input type="radio" name="room" value="700"> 女生床位 <span class="price-tag">700/晚</span>
+      </label>
+      <label class="radio-option" onclick="setRoom(this)">
+        <input type="radio" name="room" value="600"> 混合床位 <span class="price-tag">600/晚</span>
+      </label>
+      <label class="radio-option selected" onclick="setRoom(this)">
+        <input type="radio" name="room" value="0" checked> 不住宿
+      </label>
+    </div>
+    <div style="margin-top:14px; display:flex; align-items:center; gap:10px;">
+      <span style="font-size:0.85rem; color:#93c5fd;">住幾晚：</span>
+      <input type="number" id="nights" value="2" min="0" max="5" oninput="calc()">
+      <span class="nights-label">晚</span>
+    </div>
+  </div>
+
+  <!-- 潛水活動 -->
+  <div class="card">
+    <div class="card-title"><span>🌊</span> 潛水活動</div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="nd1" onchange="calc()">
+        <label for="nd1"><div class="row-label">5/9 夜潛</div></label>
+      </div>
+      <span class="price-tag">1,050 元</span>
+    </div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="nd2" onchange="calc()">
+        <label for="nd2"><div class="row-label">5/10 夜潛</div></label>
+      </div>
+      <span class="price-tag">1,050 元</span>
+    </div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="sd1" onchange="calc()">
+        <label for="sd1"><div class="row-label">5/9 岸潛</div></label>
+      </div>
+      <span class="price-tag">600 元</span>
+    </div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="bd1" onchange="calc()">
+        <label for="bd1"><div class="row-label">5/10 早上船潛</div></label>
+      </div>
+      <span class="price-tag">3,000 元</span>
+    </div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="bd2" onchange="calc()">
+        <label for="bd2"><div class="row-label">5/11 早上船潛</div></label>
+      </div>
+      <span class="price-tag">3,000 元</span>
+    </div>
+  </div>
+
+  <!-- 交通 -->
+  <div class="card">
+    <div class="card-title"><span>🚢</span> 交通</div>
+    <div class="row">
+      <div class="row-left">
+        <input type="checkbox" id="ferry" onchange="calc()">
+        <label for="ferry"><div class="row-label">船票（來回）</div></label>
+      </div>
+      <span class="price-tag">420 元</span>
+    </div>
+    <div class="row" style="flex-direction:column; align-items:flex-start; gap:10px;">
+      <div class="row-left">
+        <input type="checkbox" id="scooter" onchange="calc()">
+        <label for="scooter">
+          <div class="row-label">機車租借</div>
+          <div class="row-sub">400元/台/天</div>
+        </label>
+      </div>
+      <div class="scooter-row">
+        <span>騎幾天：</span>
+        <input type="number" id="scooterDays" value="2" min="1" max="5" oninput="calc()" style="width:55px">
+        <span>天，與</span>
+        <input type="number" id="scooterPeople" value="2" min="1" max="4" oninput="calc()" style="width:55px">
+        <span>人共乘（平均分攤）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 裝備租借 -->
+  <div class="card">
+    <div class="card-title"><span>🎽</span> 裝備租借</div>
+    <div class="toggle-wrap">
+      <label class="toggle">
+        <input type="checkbox" id="studentDiscount" onchange="calc()">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">琉浪學員 <strong>輕重裝八折優惠</strong></span>
+    </div>
+    <div style="margin-top:16px;">
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="mask" onchange="calc()">
+          <label for="mask"><div class="row-label">面鏡</div></label>
+          <span class="price-tag">100/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="maskDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="snorkel" onchange="calc()">
+          <label for="snorkel"><div class="row-label">呼吸管</div></label>
+          <span class="price-tag">100/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="snorkelDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="wetsuit" onchange="calc()">
+          <label for="wetsuit"><div class="row-label">防寒衣</div></label>
+          <span class="price-tag">150/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="wetsuitDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="boots" onchange="calc()">
+          <label for="boots"><div class="row-label">套鞋</div></label>
+          <span class="price-tag">50/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="bootsDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="fins" onchange="calc()">
+          <label for="fins"><div class="row-label">蛙鞋</div></label>
+          <span class="price-tag">100/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="finsDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="bcd" onchange="calc()">
+          <label for="bcd"><div class="row-label">重裝（BCD+調節器）</div></label>
+          <span class="price-tag">600/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="bcdDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="fullset" onchange="calc()">
+          <label for="fullset"><div class="row-label">全套（輕裝+重裝）</div></label>
+          <span class="price-tag">1,000/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="fullsetDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="computer" onchange="calc()">
+          <label for="computer"><div class="row-label">電腦錶</div></label>
+          <span class="price-tag">300/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="computerDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-left">
+          <input type="checkbox" id="torch" onchange="calc()">
+          <label for="torch"><div class="row-label">手電筒</div></label>
+          <span class="price-tag">200/天</span>
+        </div>
+        <div class="row-right">
+          <input type="number" id="torchDays" value="1" min="1" max="5" oninput="calc()">
+          <span class="nights-label">天</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <div class="summary-title">💰 個人費用明細</div>
+    <div class="summary-line" id="s-accommodation"><span>住宿</span><span>─</span></div>
+    <div class="summary-line" id="s-diving"><span>潛水活動</span><span>─</span></div>
+    <div class="summary-line" id="s-transport"><span>交通</span><span>─</span></div>
+    <div class="summary-line" id="s-gear"><span>裝備租借</span><span>─</span></div>
+    <hr class="summary-divider">
+    <div class="summary-total">
+      <span class="label">總計</span>
+      <span id="s-total">0 元</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedRoom = 0;
+
+  function setRoom(el) {
+    document.querySelectorAll('.radio-option').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedRoom = parseInt(el.querySelector('input').value) || 0;
+    calc();
+  }
+
+  function n(id) { return document.getElementById(id); }
+  function checked(id) { return n(id).checked; }
+  function val(id) { return Math.max(0, parseInt(n(id).value) || 0); }
+
+  function applyDiscount(amount) {
+    return checked('studentDiscount') ? Math.round(amount * 0.8) : amount;
+  }
+
+  function calc() {
+    const nights = val('nights');
+    const accommodation = selectedRoom * nights;
+
+    let diving = 0;
+    if (checked('nd1')) diving += 1050;
+    if (checked('nd2')) diving += 1050;
+    if (checked('sd1')) diving += 600;
+    if (checked('bd1')) diving += 3000;
+    if (checked('bd2')) diving += 3000;
+
+    let transport = 0;
+    if (checked('ferry')) transport += 420;
+    if (checked('scooter')) {
+      const days = val('scooterDays');
+      const people = Math.max(1, val('scooterPeople'));
+      transport += Math.round((400 * days) / people);
+    }
+
+    let gear = 0;
+    if (checked('mask'))     gear += applyDiscount(100  * val('maskDays'));
+    if (checked('snorkel'))  gear += applyDiscount(100  * val('snorkelDays'));
+    if (checked('wetsuit'))  gear += applyDiscount(150  * val('wetsuitDays'));
+    if (checked('boots'))    gear += applyDiscount(50   * val('bootsDays'));
+    if (checked('fins'))     gear += applyDiscount(100  * val('finsDays'));
+    if (checked('bcd'))      gear += applyDiscount(600  * val('bcdDays'));
+    if (checked('fullset'))  gear += applyDiscount(1000 * val('fullsetDays'));
+    if (checked('computer')) gear += applyDiscount(300  * val('computerDays'));
+    if (checked('torch'))    gear += applyDiscount(200  * val('torchDays'));
+
+    const total = accommodation + diving + transport + gear;
+
+    updateLine('s-accommodation', '住宿', accommodation);
+    updateLine('s-diving', '潛水活動', diving);
+    updateLine('s-transport', '交通', transport);
+    updateLine('s-gear', '裝備租借' + (checked('studentDiscount') ? ' 🎓' : ''), gear);
+    n('s-total').textContent = total.toLocaleString() + ' 元';
+  }
+
+  function updateLine(id, label, value) {
+    const el = n(id);
+    el.innerHTML = `<span>${label}</span><span>${value > 0 ? value.toLocaleString() + ' 元' : '─'}</span>`;
+    el.className = 'summary-line' + (value === 0 ? ' zero' : '');
+  }
+
+  calc();
+</script>
+</body>
+</html>
