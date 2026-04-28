@@ -17,6 +17,7 @@ svg#world{width:100%;height:100%;display:block}
 .continent{fill:#1e3d2a;stroke:#2d5e3c;stroke-width:.7;opacity:.92}
 .grid-line{stroke:rgba(80,140,190,0.10);stroke-width:.5;fill:none}
 .equator{stroke:rgba(0,200,255,0.18);stroke-width:.8;stroke-dasharray:4,4;fill:none}
+/* dive markers */
 .marker-group{cursor:pointer}
 .marker-group:hover .marker-dot{r:7;filter:url(#glow2)}
 @keyframes pulse{0%{r:6;opacity:.9}100%{r:22;opacity:0}}
@@ -25,22 +26,58 @@ svg#world{width:100%;height:100%;display:block}
 .p2{animation:pulse2 2.2s ease-out infinite .7s}
 .marker-dot{fill:#00d4ff;transition:r .15s}
 .marker-num{fill:#020d1a;font-size:8.5px;font-weight:700;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
-.sidebar{width:272px;background:rgba(3,14,32,0.97);border-left:1px solid rgba(0,200,255,0.12);padding:14px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
-.sidebar h2{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#00d4ff;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(0,200,255,0.18)}
-.leg-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:6px;cursor:pointer;transition:background .18s,border-color .18s;border:1px solid transparent}
+/* visited markers */
+.visited-marker{cursor:pointer}
+@keyframes pulse-gold{0%{r:5;opacity:.9}100%{r:18;opacity:0}}
+.vp1{animation:pulse-gold 2s ease-out infinite;stroke:#f5c518;fill:none;stroke-width:1.5}
+/* SIDEBAR */
+.sidebar{width:280px;background:rgba(3,14,32,0.97);border-left:1px solid rgba(0,200,255,0.12);padding:14px 12px;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-track{background:transparent}.sidebar::-webkit-scrollbar-thumb{background:rgba(0,200,255,0.2);border-radius:2px}
+.section-title{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#00d4ff;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(0,200,255,0.18)}
+.leg-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:6px;cursor:pointer;transition:background .18s,border-color .18s;border:1px solid transparent;margin-bottom:3px}
 .leg-item:hover{background:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.18)}
 .leg-item.active{background:rgba(0,212,255,0.11);border-color:rgba(0,212,255,0.28)}
 .leg-num{width:20px;height:20px;border-radius:50%;background:#00d4ff;color:#020d1a;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .leg-name{font-size:11.5px;font-weight:600;color:#b8e0f0;line-height:1.2}
 .leg-loc{font-size:9.5px;color:#4a7a8a;margin-top:1px}
-.info-card{position:fixed;background:rgba(4,18,42,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(0,212,255,0.28);border-radius:10px;padding:15px;width:228px;box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 24px rgba(0,212,255,.08);z-index:200;pointer-events:none;display:none}
-.info-card.show{display:block;animation:fadeUp .2s ease-out}
+/* SEARCH */
+.search-section{margin-bottom:14px}
+.search-row{display:flex;gap:6px}
+.search-input{flex:1;background:rgba(245,197,24,0.06);border:1px solid rgba(245,197,24,0.22);border-radius:6px;padding:8px 10px;color:#d0e8f0;font-size:12px;outline:none;font-family:inherit}
+.search-input::placeholder{color:#3a5a68}
+.search-input:focus{border-color:rgba(245,197,24,0.5);background:rgba(245,197,24,0.09)}
+.search-btn{background:rgba(245,197,24,0.14);border:1px solid rgba(245,197,24,0.35);border-radius:6px;color:#f5c518;padding:8px 11px;cursor:pointer;font-size:13px;transition:background .15s}
+.search-btn:hover{background:rgba(245,197,24,0.26)}
+.search-btn:disabled{opacity:.4;cursor:not-allowed}
+.search-results{margin-top:6px;background:rgba(3,12,28,0.99);border:1px solid rgba(245,197,24,0.18);border-radius:7px;overflow:hidden;display:none}
+.sr-item{padding:9px 11px;cursor:pointer;border-bottom:1px solid rgba(245,197,24,0.07);transition:background .15s}
+.sr-item:last-child{border-bottom:none}
+.sr-item:hover{background:rgba(245,197,24,0.07)}
+.sr-name{font-size:11.5px;font-weight:600;color:#f0d878}
+.sr-detail{font-size:9.5px;color:#4a6a70;margin-top:2px}
+.sr-empty{padding:12px;font-size:11px;color:#3a5a68;text-align:center}
+/* VISITED LIST */
+.visited-divider{border:none;border-top:1px solid rgba(245,197,24,0.16);margin:14px 0 12px}
+.visited-title{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#f5c518;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.visited-count{background:rgba(245,197,24,0.18);color:#f5c518;font-size:9px;padding:1px 6px;border-radius:10px;letter-spacing:0}
+.visited-item{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;border-radius:6px;cursor:pointer;transition:background .18s;border:1px solid transparent;margin-bottom:3px}
+.visited-item:hover{background:rgba(245,197,24,0.07);border-color:rgba(245,197,24,0.18)}
+.vi-star{color:#f5c518;font-size:13px;flex-shrink:0;margin-top:1px}
+.vi-name{font-size:11.5px;font-weight:600;color:#f0d878;line-height:1.2}
+.vi-date{font-size:9.5px;color:#7a6828;margin-top:1px}
+.vi-del{margin-left:auto;color:rgba(255,80,80,0.35);font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;padding:0 2px;transition:color .15s}
+.vi-del:hover{color:rgba(255,80,80,0.8)}
+.no-visited{font-size:11px;color:#2a4a52;text-align:center;padding:16px 6px;line-height:1.7}
+/* DIVE INFO CARD */
+.info-card{position:fixed;background:rgba(4,18,42,0.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(0,212,255,0.28);border-radius:10px;padding:15px;width:232px;box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 24px rgba(0,212,255,.08);z-index:200;pointer-events:none;display:none}
+.info-card.show,.visited-card.show{display:block;animation:fadeUp .2s ease-out;pointer-events:all}
 @keyframes fadeUp{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .card-header{display:flex;align-items:center;gap:7px;margin-bottom:10px}
 .card-badge{width:22px;height:22px;border-radius:50%;background:#00d4ff;color:#020d1a;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .card-title{font-size:13.5px;font-weight:700;color:#9ad8f0;line-height:1.2}
 .card-country{font-size:9.5px;color:#3a7090;text-transform:uppercase;letter-spacing:.1em;margin-top:1px}
 .card-divider{border:none;border-top:1px solid rgba(0,212,255,0.13);margin:8px 0}
+.gold-divider{border:none;border-top:1px solid rgba(245,197,24,0.18);margin:8px 0}
 .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px}
 .stat{background:rgba(0,212,255,0.05);border-radius:5px;padding:6px 8px}
 .stat-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:#3a6a80;margin-bottom:2px}
@@ -48,6 +85,36 @@ svg#world{width:100%;height:100%;display:block}
 .card-marine{font-size:10px;color:#4a8a9a;line-height:1.55}
 .card-marine b{color:#80c8e0}
 .close-hint{position:absolute;top:8px;right:10px;font-size:16px;color:rgba(0,212,255,0.35);cursor:pointer;pointer-events:all;line-height:1}
+.close-hint-gold{position:absolute;top:8px;right:10px;font-size:16px;color:rgba(245,197,24,0.35);cursor:pointer;pointer-events:all;line-height:1}
+/* VISITED CARD */
+.visited-card{position:fixed;background:rgba(4,18,38,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:15px;width:232px;box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 24px rgba(245,197,24,.06);z-index:200;pointer-events:none;display:none}
+.vc-badge{width:22px;height:22px;border-radius:50%;background:#f5c518;color:#020d1a;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700}
+.vc-title{font-size:13.5px;font-weight:700;color:#f0d878;line-height:1.2}
+.vc-date-label{font-size:9.5px;color:#7a6828;text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.vc-stat{background:rgba(245,197,24,0.06);border-radius:5px;padding:8px 10px;margin-bottom:7px}
+.vc-stat-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:#6a5818;margin-bottom:3px}
+.vc-stat-val{font-size:11.5px;color:#c8a830;font-weight:600}
+.vc-notes{font-size:10.5px;color:#7a7040;line-height:1.55;word-break:break-word}
+.btn-del{width:100%;margin-top:10px;background:rgba(200,60,60,0.1);border:1px solid rgba(200,60,60,0.25);color:rgba(220,100,100,0.7);border-radius:6px;padding:7px;cursor:pointer;font-size:11px;transition:all .15s;pointer-events:all}
+.btn-del:hover{background:rgba(200,60,60,0.2);color:rgba(255,120,120,0.9)}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:400;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex;animation:fadeIn .15s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:rgba(4,16,36,0.99);border:1px solid rgba(245,197,24,0.32);border-radius:12px;padding:22px;width:320px;box-shadow:0 20px 56px rgba(0,0,0,.8),0 0 36px rgba(245,197,24,.06)}
+.modal h3{font-size:14px;color:#f0d878;margin-bottom:4px;font-weight:600}
+.modal-sub{font-size:10.5px;color:#4a6a72;margin-bottom:16px}
+.form-group{margin-bottom:11px}
+.form-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:#4a6a72;margin-bottom:4px;display:block}
+.form-input,.form-textarea{width:100%;background:rgba(245,197,24,0.05);border:1px solid rgba(245,197,24,0.18);border-radius:6px;padding:8px 10px;color:#d0e8f0;font-size:12px;outline:none;font-family:inherit;transition:border-color .15s}
+.form-input:focus,.form-textarea:focus{border-color:rgba(245,197,24,0.5);background:rgba(245,197,24,0.08)}
+.form-textarea{resize:vertical;min-height:62px}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+.btn-confirm{flex:1;background:rgba(245,197,24,0.16);border:1px solid rgba(245,197,24,0.42);color:#f5c518;border-radius:7px;padding:9px;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s}
+.btn-confirm:hover{background:rgba(245,197,24,0.28)}
+.btn-cancel{background:transparent;border:1px solid rgba(255,255,255,0.1);color:#3a6a72;border-radius:7px;padding:9px 14px;cursor:pointer;font-size:12px;transition:background .15s}
+.btn-cancel:hover{background:rgba(255,255,255,0.05)}
+/* particles */
 .sea-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .particle{position:absolute;border-radius:50%;background:rgba(0,212,255,0.15);animation:drift linear infinite}
 @keyframes drift{0%{transform:translateY(0) scale(1);opacity:.4}50%{opacity:.15}100%{transform:translateY(-40px) scale(0.5);opacity:0}}
@@ -66,13 +133,12 @@ svg#world{width:100%;height:100%;display:block}
       <defs>
         <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="glow2"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="glow-gold"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <radialGradient id="og" cx="50%" cy="45%"><stop offset="0%" stop-color="#0e2d4f"/><stop offset="100%" stop-color="#020d1a"/></radialGradient>
         <filter id="land-shadow"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity=".4"/></filter>
       </defs>
       <rect width="1000" height="500" fill="url(#og)"/>
-
-      <!-- Latitude/Longitude grid -->
-      <!-- Longitudes every 30° -->
+      <!-- Grid -->
       <line class="grid-line" x1="83" y1="0" x2="83" y2="500"/>
       <line class="grid-line" x1="167" y1="0" x2="167" y2="500"/>
       <line class="grid-line" x1="250" y1="0" x2="250" y2="500"/>
@@ -84,169 +150,95 @@ svg#world{width:100%;height:100%;display:block}
       <line class="grid-line" x1="750" y1="0" x2="750" y2="500"/>
       <line class="grid-line" x1="833" y1="0" x2="833" y2="500"/>
       <line class="grid-line" x1="917" y1="0" x2="917" y2="500"/>
-      <!-- Latitudes -->
       <line class="grid-line" x1="0" y1="83" x2="1000" y2="83"/>
       <line class="grid-line" x1="0" y1="167" x2="1000" y2="167"/>
       <line class="equator" x1="0" y1="250" x2="1000" y2="250"/>
       <line class="grid-line" x1="0" y1="333" x2="1000" y2="333"/>
       <line class="grid-line" x1="0" y1="417" x2="1000" y2="417"/>
-
       <!-- NORTH AMERICA -->
-      <polygon class="continent" filter="url(#land-shadow)"
-        points="42,50 167,47 278,50 347,119 322,128 294,139 289,150 278,181 272,222 286,228 278,228 267,222 256,206 250,192 264,167 250,169 231,178 228,194 211,197 197,186 181,161 172,156 161,144 156,117 125,97 111,86 75,92 42,78"/>
-
+      <polygon class="continent" filter="url(#land-shadow)" points="42,50 167,47 278,50 347,119 322,128 294,139 289,150 278,181 272,222 286,228 278,228 267,222 256,206 250,192 264,167 250,169 231,178 228,194 211,197 197,186 181,161 172,156 161,144 156,117 125,97 111,86 75,92 42,78"/>
       <!-- GREENLAND -->
-      <polygon class="continent"
-        points="333,19 375,17 400,25 405,42 390,53 360,56 335,47 322,36"/>
-
+      <polygon class="continent" points="333,19 375,17 400,25 405,42 390,53 360,56 335,47 322,36"/>
       <!-- SOUTH AMERICA -->
-      <polygon class="continent" filter="url(#land-shadow)"
-        points="267,203 278,203 283,228 294,219 314,217 330,219 406,261 392,292 381,313 355,344 342,378 319,403 308,406 294,375 297,306 286,264 278,256 270,242 267,222"/>
-
+      <polygon class="continent" filter="url(#land-shadow)" points="267,203 278,203 283,228 294,219 314,217 330,219 406,261 392,292 381,313 355,344 342,378 319,403 308,406 294,375 297,306 286,264 278,256 270,242 267,222"/>
       <!-- EUROPE -->
-      <polygon class="continent"
-        points="472,150 472,128 486,117 494,103 486,89 500,83 514,78 542,56 569,50 583,56 575,83 564,97 556,100 539,100 522,100 508,111 508,128 522,128 539,144 544,136 556,139 569,139 578,136 600,147 600,136 580,128 586,117 600,111 600,100 597,89 583,56 575,83 556,100"/>
-      <!-- Simpler Europe connecting to Asia -->
-      <polygon class="continent"
-        points="472,150 472,128 483,117 494,103 486,89 500,83 514,78 539,58 569,50 583,56 575,83 564,97 556,100 539,100 522,100 508,111 508,128 520,128 536,144 544,136 556,139 569,139 578,136 600,147 628,142 655,144 672,150 656,161 628,167 611,153 595,150 580,150"/>
-
-      <!-- ASIA (main body) -->
-      <polygon class="continent" filter="url(#land-shadow)"
-        points="569,50 667,50 778,50 889,56 972,69 972,111 889,125 875,153 847,181 833,222 808,244 800,236 786,228 756,222 739,228 722,217 706,219 697,233 680,239 658,239 650,233 640,222 633,222 625,217 622,200 636,189 644,175 655,144 672,150 680,228 700,189 694,183 684,183 678,194 667,200 656,189 644,175 636,156 628,142 600,147 578,136 569,139 556,139 544,136 536,144 520,128 508,128 508,111 522,100 539,100 556,100 564,97 575,83 583,56"/>
-
-      <!-- INDIA subcontinent -->
-      <polygon class="continent"
-        points="672,189 656,189 644,175 636,156 628,142 636,167 639,178 650,189 656,200 661,211 672,219 683,211 692,200 697,189 692,183 683,183"/>
-
+      <polygon class="continent" points="472,150 472,128 483,117 494,103 486,89 500,83 514,78 539,58 569,50 583,56 575,83 564,97 556,100 539,100 522,100 508,111 508,128 520,128 536,144 544,136 556,139 569,139 578,136 600,147 628,142 655,144 672,150 656,161 628,167 611,153 595,150 580,150"/>
+      <!-- ASIA -->
+      <polygon class="continent" filter="url(#land-shadow)" points="569,50 667,50 778,50 889,56 972,69 972,111 889,125 875,153 847,181 833,222 808,244 800,236 786,228 756,222 739,228 722,217 706,219 697,233 680,239 658,239 650,233 640,222 633,222 625,217 622,200 636,189 644,175 655,144 672,150 680,228 700,189 694,183 684,183 678,194 667,200 656,189 644,175 636,156 628,142 600,147 578,136 569,139 556,139 544,136 536,144 520,128 508,128 508,111 522,100 539,100 556,100 564,97 575,83 583,56"/>
+      <!-- INDIA -->
+      <polygon class="continent" points="672,189 656,189 644,175 636,156 628,142 636,167 639,178 650,189 656,200 661,211 672,219 683,211 692,200 697,189 692,183 683,183"/>
       <!-- ARABIAN PENINSULA -->
-      <polygon class="continent"
-        points="600,167 614,161 628,167 644,175 650,189 644,206 636,217 625,217 622,200 611,200 600,189"/>
-
-      <!-- SE ASIA PENINSULA (Indochina/Malay) -->
-      <polygon class="continent"
-        points="786,228 800,236 808,244 800,253 792,264 778,278 769,292 756,264 744,247 744,239 756,233 769,228"/>
-
+      <polygon class="continent" points="600,167 614,161 628,167 644,175 650,189 644,206 636,217 625,217 622,200 611,200 600,189"/>
+      <!-- SE ASIA PENINSULA -->
+      <polygon class="continent" points="786,228 800,236 808,244 800,253 792,264 778,278 769,292 756,264 744,247 744,239 756,233 769,228"/>
       <!-- AFRICA -->
-      <polygon class="continent" filter="url(#land-shadow)"
-        points="472,156 486,150 500,147 528,147 550,150 583,147 600,153 611,167 622,189 614,206 608,222 619,228 619,239 611,253 606,267 597,281 592,294 586,311 578,328 564,339 550,344 539,344 525,339 511,328 503,311 497,294 494,275 492,261 494,247 500,242 508,244 511,253 519,256 522,247 519,236 514,228 508,222 500,219 492,222 483,231 475,239 469,233 467,219 469,208 472,200 467,178 464,167"/>
-
+      <polygon class="continent" filter="url(#land-shadow)" points="472,156 486,150 500,147 528,147 550,150 583,147 600,153 611,167 622,189 614,206 608,222 619,228 619,239 611,253 606,267 597,281 592,294 586,311 578,328 564,339 550,344 539,344 525,339 511,328 503,311 497,294 494,275 492,261 494,247 500,242 508,244 511,253 519,256 522,247 519,236 514,228 508,222 500,219 492,222 483,231 475,239 469,233 467,219 469,208 472,200 467,178 464,167"/>
       <!-- MADAGASCAR -->
-      <polygon class="continent"
-        points="578,281 583,272 589,283 594,294 589,303 583,294"/>
-
+      <polygon class="continent" points="578,281 583,272 589,283 594,294 589,303 583,294"/>
       <!-- AUSTRALIA -->
-      <polygon class="continent" filter="url(#land-shadow)"
-        points="819,311 817,325 817,336 825,342 839,342 853,339 864,347 875,353 886,358 900,356 914,358 919,342 917,328 911,311 897,294 886,289 878,283 864,286 853,289 839,297 828,303"/>
-
-      <!-- NEW ZEALAND -->
-      <polygon class="continent"
-        points="942,367 945,356 950,358 953,367 948,375"/>
-      <polygon class="continent"
-        points="944,381 947,375 953,378 950,386 944,386"/>
-
+      <polygon class="continent" filter="url(#land-shadow)" points="819,311 817,325 817,336 825,342 839,342 853,339 864,347 875,353 886,358 900,356 914,358 919,342 917,328 911,311 897,294 886,289 878,283 864,286 853,289 839,297 828,303"/>
+      <!-- NZ -->
+      <polygon class="continent" points="942,367 945,356 950,358 953,367 948,375"/>
+      <polygon class="continent" points="944,381 947,375 953,378 950,386 944,386"/>
       <!-- JAPAN -->
-      <polygon class="continent"
-        points="897,136 903,128 908,131 906,139 900,142"/>
-      <polygon class="continent"
-        points="908,128 914,122 919,125 917,133 911,136"/>
-
+      <polygon class="continent" points="897,136 903,128 908,131 906,139 900,142"/>
+      <polygon class="continent" points="908,128 914,122 919,125 917,133 911,136"/>
       <!-- UK -->
-      <polygon class="continent"
-        points="481,94 484,86 489,89 489,97 484,100"/>
-
-      <!-- ANTARCTICA (simplified strip) -->
+      <polygon class="continent" points="481,94 484,86 489,89 489,97 484,100"/>
+      <!-- ANTARCTICA -->
       <rect class="continent" x="0" y="444" width="1000" height="56" opacity=".5"/>
 
-      <!-- MARKER SPOTS -->
-      <!-- 1. Great Barrier Reef: lat=-18.29 lon=147.70 → x=910, y=302 -->
-      <g class="marker-group" data-id="0" onclick="showCard(0,event)">
-        <circle class="p1" cx="910" cy="302" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="910" cy="302" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="910" cy="302" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="910" y="302">1</text>
-      </g>
-      <!-- 2. Blue Hole Belize: lat=17.32 lon=-87.53 → x=257, y=202 -->
-      <g class="marker-group" data-id="1" onclick="showCard(1,event)">
-        <circle class="p1" cx="257" cy="202" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="257" cy="202" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="257" cy="202" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="257" y="202">2</text>
-      </g>
-      <!-- 3. Palau: lat=7.52 lon=134.58 → x=874, y=229 -->
-      <g class="marker-group" data-id="2" onclick="showCard(2,event)">
-        <circle class="p1" cx="874" cy="229" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="874" cy="229" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="874" cy="229" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="874" y="229">3</text>
-      </g>
-      <!-- 4. Red Sea Egypt: lat=27.74 lon=34.25 → x=595, y=173 -->
-      <g class="marker-group" data-id="3" onclick="showCard(3,event)">
-        <circle class="p1" cx="595" cy="173" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="595" cy="173" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="595" cy="173" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="595" y="173">4</text>
-      </g>
-      <!-- 5. Galápagos: lat=-0.95 lon=-90.97 → x=247, y=253 -->
-      <g class="marker-group" data-id="4" onclick="showCard(4,event)">
-        <circle class="p1" cx="247" cy="253" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="247" cy="253" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="247" cy="253" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="247" y="253">5</text>
-      </g>
-      <!-- 6. Komodo: lat=-8.57 lon=119.47 → x=832, y=274 -->
-      <g class="marker-group" data-id="5" onclick="showCard(5,event)">
-        <circle class="p1" cx="832" cy="274" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="832" cy="274" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="832" cy="274" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="832" y="274">6</text>
-      </g>
-      <!-- 7. Maldives: lat=3.20 lon=73.22 → x=703, y=241 -->
-      <g class="marker-group" data-id="6" onclick="showCard(6,event)">
-        <circle class="p1" cx="703" cy="241" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="703" cy="241" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="703" cy="241" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="703" y="241">7</text>
-      </g>
-      <!-- 8. Sipadan: lat=4.11 lon=118.63 → x=829, y=238 -->
-      <g class="marker-group" data-id="7" onclick="showCard(7,event)">
-        <circle class="p1" cx="829" cy="244" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="829" cy="244" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="829" cy="244" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="829" y="244">8</text>
-      </g>
-      <!-- 9. Socorro: lat=18.73 lon=-110.97 → x=192, y=198 -->
-      <g class="marker-group" data-id="8" onclick="showCard(8,event)">
-        <circle class="p1" cx="192" cy="198" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="192" cy="198" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="192" cy="198" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="192" y="198">9</text>
-      </g>
-      <!-- 10. Cocos Island: lat=5.54 lon=-87.06 → x=258, y=234 -->
-      <g class="marker-group" data-id="9" onclick="showCard(9,event)">
-        <circle class="p1" cx="263" cy="236" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle class="p2" cx="263" cy="236" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/>
-        <circle class="marker-dot" cx="263" cy="236" r="6" filter="url(#glow)"/>
-        <text class="marker-num" x="263" y="236">10</text>
-      </g>
+      <!-- VISITED PLACES LAYER (dynamic) -->
+      <g id="visitedLayer"></g>
+
+      <!-- TOP 10 DIVE MARKERS -->
+      <g class="marker-group" data-id="0" onclick="showCard(0,event)"><circle class="p1" cx="910" cy="302" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="910" cy="302" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="910" cy="302" r="6" filter="url(#glow)"/><text class="marker-num" x="910" y="302">1</text></g>
+      <g class="marker-group" data-id="1" onclick="showCard(1,event)"><circle class="p1" cx="257" cy="202" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="257" cy="202" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="257" cy="202" r="6" filter="url(#glow)"/><text class="marker-num" x="257" y="202">2</text></g>
+      <g class="marker-group" data-id="2" onclick="showCard(2,event)"><circle class="p1" cx="874" cy="229" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="874" cy="229" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="874" cy="229" r="6" filter="url(#glow)"/><text class="marker-num" x="874" y="229">3</text></g>
+      <g class="marker-group" data-id="3" onclick="showCard(3,event)"><circle class="p1" cx="595" cy="173" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="595" cy="173" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="595" cy="173" r="6" filter="url(#glow)"/><text class="marker-num" x="595" y="173">4</text></g>
+      <g class="marker-group" data-id="4" onclick="showCard(4,event)"><circle class="p1" cx="247" cy="253" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="247" cy="253" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="247" cy="253" r="6" filter="url(#glow)"/><text class="marker-num" x="247" y="253">5</text></g>
+      <g class="marker-group" data-id="5" onclick="showCard(5,event)"><circle class="p1" cx="832" cy="274" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="832" cy="274" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="832" cy="274" r="6" filter="url(#glow)"/><text class="marker-num" x="832" y="274">6</text></g>
+      <g class="marker-group" data-id="6" onclick="showCard(6,event)"><circle class="p1" cx="703" cy="241" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="703" cy="241" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="703" cy="241" r="6" filter="url(#glow)"/><text class="marker-num" x="703" y="241">7</text></g>
+      <g class="marker-group" data-id="7" onclick="showCard(7,event)"><circle class="p1" cx="829" cy="244" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="829" cy="244" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="829" cy="244" r="6" filter="url(#glow)"/><text class="marker-num" x="829" y="244">8</text></g>
+      <g class="marker-group" data-id="8" onclick="showCard(8,event)"><circle class="p1" cx="192" cy="198" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="192" cy="198" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="192" cy="198" r="6" filter="url(#glow)"/><text class="marker-num" x="192" y="198">9</text></g>
+      <g class="marker-group" data-id="9" onclick="showCard(9,event)"><circle class="p1" cx="263" cy="236" r="6" fill="none" stroke="#00d4ff" stroke-width="1.5"/><circle class="p2" cx="263" cy="236" r="6" fill="none" stroke="#00d4ff" stroke-width="1"/><circle class="marker-dot" cx="263" cy="236" r="6" filter="url(#glow)"/><text class="marker-num" x="263" y="236">10</text></g>
     </svg>
   </div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <h2>十大潛點 Top 10</h2>
-    <div id="legend"></div>
+    <!-- SEARCH SECTION -->
+    <div class="search-section">
+      <div class="visited-title" style="margin-bottom:8px">
+        <span style="font-size:13px">★</span> 我去過的地方
+      </div>
+      <div class="search-row">
+        <input class="search-input" id="searchInput" type="text" placeholder="搜尋地名…" autocomplete="off" onkeydown="if(event.key==='Enter')doSearch()"/>
+        <button class="search-btn" id="searchBtn" onclick="doSearch()" title="搜尋">🔍</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- TOP 10 DIVE SITES -->
+    <div class="section-title">十大潛點 Top 10</div>
+    <div id="legend" style="margin-bottom:4px"></div>
+
+    <!-- VISITED PLACES -->
+    <hr class="visited-divider">
+    <div class="visited-title">
+      <span style="font-size:13px">★</span> 足跡紀念冊
+      <span class="visited-count" id="visitedCount">0</span>
+    </div>
+    <div id="visitedList"></div>
   </div>
 </div>
 
-<!-- INFO CARD -->
+<!-- DIVE INFO CARD -->
 <div class="info-card" id="infoCard">
   <span class="close-hint" onclick="hideCard()">✕</span>
   <div class="card-header">
     <div class="card-badge" id="cBadge"></div>
-    <div>
-      <div class="card-title" id="cTitle"></div>
-      <div class="card-country" id="cCountry"></div>
-    </div>
+    <div><div class="card-title" id="cTitle"></div><div class="card-country" id="cCountry"></div></div>
   </div>
   <hr class="card-divider">
   <div class="card-grid">
@@ -258,99 +250,281 @@ svg#world{width:100%;height:100%;display:block}
   <div class="card-marine" id="cMarine"></div>
 </div>
 
+<!-- VISITED PLACE CARD -->
+<div class="visited-card" id="visitedCard">
+  <span class="close-hint-gold" onclick="hideVisitedCard()">✕</span>
+  <div class="card-header">
+    <div class="vc-badge">★</div>
+    <div><div class="vc-title" id="vcTitle"></div><div class="vc-date-label" id="vcDateLabel"></div></div>
+  </div>
+  <hr class="gold-divider">
+  <div class="vc-stat"><div class="vc-stat-label">日期</div><div class="vc-stat-val" id="vcDate"></div></div>
+  <div class="vc-stat"><div class="vc-stat-label">備註</div><div class="vc-notes" id="vcNotes"></div></div>
+  <button class="btn-del" id="vcDel">🗑 移除此地點</button>
+</div>
+
+<!-- ADD PLACE MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>📍 加入足跡</h3>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="form-group">
+      <label class="form-label">地點名稱</label>
+      <input class="form-input" id="modalName" type="text" placeholder="自訂名稱（可修改）"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">到訪日期</label>
+      <input class="form-input" id="modalDate" type="month"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">備註 / 回憶</label>
+      <textarea class="form-textarea" id="modalNotes" placeholder="記下這趟旅程的故事…"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-confirm" onclick="confirmAdd()">✦ 加入地圖</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ─── Dive spots data ───────────────────────────────────────────
 const spots = [
-  {name:"大堡礁",en:"Great Barrier Reef",country:"澳洲 AUSTRALIA",depth:"30m",vis:"30m+",season:"4–11月",level:"初–進階",marine:"<b>珊瑚礁魚</b>、海龜、礁鯊、蝠鱝、巨型礁石群，全球最大珊瑚礁系統"},
-  {name:"藍洞",en:"Blue Hole",country:"貝里斯 BELIZE",depth:"120m",vis:"30m+",season:"4–6月",level:"進階",marine:"<b>雙髻鯊、牛鯊</b>、護士鯊、海龜，神秘的海底大藍洞，UNESCO遺址"},
+  {name:"大堡礁",en:"Great Barrier Reef",country:"澳洲 AUSTRALIA",depth:"30m",vis:"30m+",season:"4–11月",level:"初–進階",marine:"<b>珊瑚礁魚</b>、海龜、礁鯊、蝠鱝，全球最大珊瑚礁系統"},
+  {name:"藍洞",en:"Blue Hole",country:"貝里斯 BELIZE",depth:"120m",vis:"30m+",season:"4–6月",level:"進階",marine:"<b>雙髻鯊、牛鯊</b>、護士鯊、海龜，UNESCO世界遺址"},
   {name:"帛琉",en:"Palau",country:"密克羅尼西亞 PALAU",depth:"40m",vis:"30m",season:"11–4月",level:"中–進階",marine:"<b>蝠鱝、水母湖</b>、鯊魚、鯨鯊，珊瑚三角區核心"},
-  {name:"紅海",en:"Red Sea",country:"埃及 EGYPT",depth:"40m",vis:"35m+",season:"3–5月",level:"初–進階",marine:"<b>拿破崙魚、長鰭笛鯛</b>、獅子魚、珊瑚礁，能見度極佳"},
-  {name:"加拉巴哥群島",en:"Galápagos Islands",country:"厄瓜多 ECUADOR",depth:"30m",vis:"20m",season:"6–11月",level:"進階",marine:"<b>雙髻鯊、鯨鯊</b>、海獅、魟魚、海鬣蜥，野生動物天堂"},
-  {name:"科摩多",en:"Komodo",country:"印尼 INDONESIA",depth:"30m",vis:"15m",season:"4–6月",level:"進階",marine:"<b>蝠鱝、海龍</b>、礁鯊、砲彈魚，強流富含養分"},
+  {name:"紅海",en:"Red Sea",country:"埃及 EGYPT",depth:"40m",vis:"35m+",season:"3–5月",level:"初–進階",marine:"<b>拿破崙魚、長鰭笛鯛</b>、獅子魚，能見度極佳"},
+  {name:"加拉巴哥群島",en:"Galápagos Islands",country:"厄瓜多 ECUADOR",depth:"30m",vis:"20m",season:"6–11月",level:"進階",marine:"<b>雙髻鯊、鯨鯊</b>、海獅、魟魚、海鬣蜥"},
+  {name:"科摩多",en:"Komodo",country:"印尼 INDONESIA",depth:"30m",vis:"15m",season:"4–6月",level:"進階",marine:"<b>蝠鱝、海龍</b>、礁鯊，強流富含養分"},
   {name:"馬爾地夫",en:"Maldives",country:"馬爾地夫 MALDIVES",depth:"30m",vis:"30m",season:"12–4月",level:"初–進階",marine:"<b>鯨鯊、蝠鱝</b>、礁鯊、海龜，印度洋珊瑚天堂"},
-  {name:"詩巴丹島",en:"Sipadan Island",country:"馬來西亞 MALAYSIA",depth:"40m",vis:"30m",season:"4–10月",level:"中–進階",marine:"<b>綠蠵龜、雙髻鯊</b>、梭魚群、礁鯊，婆羅洲潛水聖地"},
-  {name:"索科羅島",en:"Socorro Island",country:"墨西哥 MEXICO",depth:"50m",vis:"30m",season:"11–5月",level:"進階",marine:"<b>巨型蝠鱝、鯊魚</b>、海豚、鯨魚，太平洋「科拉巴哥」"},
-  {name:"可可島",en:"Cocos Island",country:"哥斯大黎加 COSTA RICA",depth:"40m",vis:"30m",season:"6–11月",level:"進階",marine:"<b>雙髻鯊、鯨鯊</b>、大理石魟魚、鮣魚群，遠洋鯊魚天堂"}
+  {name:"詩巴丹島",en:"Sipadan Island",country:"馬來西亞 MALAYSIA",depth:"40m",vis:"30m",season:"4–10月",level:"中–進階",marine:"<b>綠蠵龜、雙髻鯊</b>、梭魚群，婆羅洲潛水聖地"},
+  {name:"索科羅島",en:"Socorro Island",country:"墨西哥 MEXICO",depth:"50m",vis:"30m",season:"11–5月",level:"進階",marine:"<b>巨型蝠鱝、鯊魚</b>、海豚、鯨魚"},
+  {name:"可可島",en:"Cocos Island",country:"哥斯大黎加 COSTA RICA",depth:"40m",vis:"30m",season:"6–11月",level:"進階",marine:"<b>雙髻鯊、鯨鯊</b>、大理石魟魚、鮣魚群"}
 ];
 
-// Build legend
-const leg = document.getElementById('legend');
+// ─── Build Top-10 legend ───────────────────────────────────────
+const legEl = document.getElementById('legend');
 spots.forEach((s,i)=>{
   const d = document.createElement('div');
-  d.className = 'leg-item';
-  d.id = 'leg-'+i;
-  d.innerHTML = `<div class="leg-num">${i+1}</div><div><div class="leg-name">${s.name}</div><div class="leg-loc">${s.en}</div></div>`;
-  d.onclick = () => activateLegend(i);
-  leg.appendChild(d);
+  d.className='leg-item'; d.id='leg-'+i;
+  d.innerHTML=`<div class="leg-num">${i+1}</div><div><div class="leg-name">${s.name}</div><div class="leg-loc">${s.en}</div></div>`;
+  d.onclick=()=>activateLegend(i);
+  legEl.appendChild(d);
 });
 
-let activeId = null;
-function showCard(id, e) {
-  e && e.stopPropagation();
-  const s = spots[id];
-  document.getElementById('cBadge').textContent = id+1;
-  document.getElementById('cTitle').textContent = s.name;
-  document.getElementById('cCountry').textContent = s.en + ' · ' + s.country.split(' ')[1];
-  document.getElementById('cDepth').textContent = s.depth;
-  document.getElementById('cVis').textContent = s.vis;
-  document.getElementById('cSeason').textContent = s.season;
-  document.getElementById('cLevel').textContent = s.level;
-  document.getElementById('cMarine').innerHTML = s.marine;
-
-  // Position card near click
-  const card = document.getElementById('infoCard');
-  card.classList.remove('show');
-  void card.offsetWidth;
-
-  let x = e ? e.clientX + 16 : 200;
-  let y = e ? e.clientY - 20 : 200;
-  if(x + 240 > window.innerWidth - 280) x = (e ? e.clientX : 400) - 250;
-  if(y + 240 > window.innerHeight) y = window.innerHeight - 250;
-  card.style.left = x + 'px';
-  card.style.top = y + 'px';
-  card.classList.add('show');
-
-  // Highlight legend
-  document.querySelectorAll('.leg-item').forEach(el => el.classList.remove('active'));
+// ─── Dive card ─────────────────────────────────────────────────
+function showCard(id,e){
+  e&&e.stopPropagation();
+  hideVisitedCard();
+  const s=spots[id];
+  document.getElementById('cBadge').textContent=id+1;
+  document.getElementById('cTitle').textContent=s.name;
+  document.getElementById('cCountry').textContent=s.en+' · '+s.country.split(' ')[1];
+  document.getElementById('cDepth').textContent=s.depth;
+  document.getElementById('cVis').textContent=s.vis;
+  document.getElementById('cSeason').textContent=s.season;
+  document.getElementById('cLevel').textContent=s.level;
+  document.getElementById('cMarine').innerHTML=s.marine;
+  positionCard('infoCard',e);
+  document.querySelectorAll('.leg-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('leg-'+id)?.classList.add('active');
-  activeId = id;
 }
-
-function activateLegend(id) {
-  // Simulate a click at center of map for that spot
-  const card = document.getElementById('infoCard');
-  const s = spots[id];
-  document.getElementById('cBadge').textContent = id+1;
-  document.getElementById('cTitle').textContent = s.name;
-  document.getElementById('cCountry').textContent = s.en + ' · ' + s.country.split(' ')[1];
-  document.getElementById('cDepth').textContent = s.depth;
-  document.getElementById('cVis').textContent = s.vis;
-  document.getElementById('cSeason').textContent = s.season;
-  document.getElementById('cLevel').textContent = s.level;
-  document.getElementById('cMarine').innerHTML = s.marine;
-
-  card.style.left = '60px'; card.style.top = '80px';
+function activateLegend(id){
+  hideVisitedCard();
+  const s=spots[id];
+  document.getElementById('cBadge').textContent=id+1;
+  document.getElementById('cTitle').textContent=s.name;
+  document.getElementById('cCountry').textContent=s.en+' · '+s.country.split(' ')[1];
+  document.getElementById('cDepth').textContent=s.depth;
+  document.getElementById('cVis').textContent=s.vis;
+  document.getElementById('cSeason').textContent=s.season;
+  document.getElementById('cLevel').textContent=s.level;
+  document.getElementById('cMarine').innerHTML=s.marine;
+  const card=document.getElementById('infoCard');
+  card.style.left='60px'; card.style.top='80px';
   card.classList.remove('show'); void card.offsetWidth; card.classList.add('show');
-  document.querySelectorAll('.leg-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.leg-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('leg-'+id)?.classList.add('active');
 }
-
-function hideCard() {
+function hideCard(){
   document.getElementById('infoCard').classList.remove('show');
-  document.querySelectorAll('.leg-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.leg-item').forEach(el=>el.classList.remove('active'));
 }
-document.getElementById('mapContainer').addEventListener('click', e => {
-  if(!e.target.closest('.marker-group')) hideCard();
-});
 
-// Floating sea particles
-const pc = document.getElementById('particles');
+function positionCard(id,e){
+  const card=document.getElementById(id);
+  card.classList.remove('show'); void card.offsetWidth;
+  let x=e?e.clientX+18:200, y=e?e.clientY-20:200;
+  const w=card.offsetWidth||236, h=card.offsetHeight||220;
+  if(x+w>window.innerWidth-284) x=(e?e.clientX:400)-w-8;
+  if(y+h>window.innerHeight-10) y=window.innerHeight-h-10;
+  if(y<60) y=60;
+  card.style.left=x+'px'; card.style.top=y+'px';
+  card.classList.add('show');
+}
+
+// ─── Visited places ────────────────────────────────────────────
+let visited=JSON.parse(localStorage.getItem('divingVisited')||'[]');
+
+function saveVisited(){ localStorage.setItem('divingVisited',JSON.stringify(visited)); }
+
+function latLonToSVG(lat,lon){ return { x:(lon+180)/360*1000, y:(90-lat)/180*500 }; }
+
+function starPoints(cx,cy,n,outer,inner){
+  const step=Math.PI/n; let pts=[];
+  for(let i=0;i<2*n;i++){
+    const r=i%2===0?outer:inner;
+    const a=i*step-Math.PI/2;
+    pts.push(`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+function renderVisitedMarkers(){
+  const layer=document.getElementById('visitedLayer');
+  layer.innerHTML='';
+  visited.forEach(p=>{
+    const {x,y}=latLonToSVG(p.lat,p.lon);
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','visited-marker');
+    g.style.cursor='pointer';
+    g.addEventListener('click',e=>{e.stopPropagation();showVisitedCard(p.id,e);});
+    // pulse ring
+    const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',x); ring.setAttribute('cy',y); ring.setAttribute('r','5');
+    ring.setAttribute('class','vp1');
+    // star
+    const star=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    star.setAttribute('points',starPoints(x,y,5,7,3));
+    star.setAttribute('fill','#f5c518');
+    star.setAttribute('filter','url(#glow-gold)');
+    g.appendChild(ring); g.appendChild(star);
+    layer.appendChild(g);
+  });
+}
+
+function renderVisitedList(){
+  const list=document.getElementById('visitedList');
+  document.getElementById('visitedCount').textContent=visited.length;
+  list.innerHTML='';
+  if(!visited.length){
+    list.innerHTML='<div class="no-visited">尚無足跡記錄<br>搜尋地名後加入地圖<br>以 ★ 標記你到過的地方</div>';
+    return;
+  }
+  [...visited].reverse().forEach(p=>{
+    const item=document.createElement('div');
+    item.className='visited-item';
+    const dateStr=p.date?p.date.replace('-','年')+'月':'';
+    item.innerHTML=`<span class="vi-star">★</span><div style="flex:1"><div class="vi-name">${esc(p.name)}</div>${dateStr?`<div class="vi-date">${dateStr}</div>`:''}</div><span class="vi-del" title="移除" onclick="event.stopPropagation();removeVisited(${p.id})">×</span>`;
+    item.onclick=()=>showVisitedCard(p.id,null);
+    list.appendChild(item);
+  });
+}
+
+function showVisitedCard(id,e){
+  const p=visited.find(x=>x.id===id); if(!p) return;
+  hideCard();
+  document.getElementById('vcTitle').textContent=p.name;
+  document.getElementById('vcDate').textContent=p.date?p.date.replace('-','年')+'月':'未記錄';
+  document.getElementById('vcNotes').textContent=p.notes||'（無備註）';
+  document.getElementById('vcDel').onclick=()=>{removeVisited(p.id);hideVisitedCard();};
+  if(e){ positionCard('visitedCard',e); }
+  else {
+    const card=document.getElementById('visitedCard');
+    card.style.left='60px'; card.style.top='80px';
+    card.classList.remove('show'); void card.offsetWidth; card.classList.add('show');
+  }
+}
+function hideVisitedCard(){ document.getElementById('visitedCard').classList.remove('show'); }
+
+function removeVisited(id){
+  visited=visited.filter(p=>p.id!==id);
+  saveVisited(); renderVisitedMarkers(); renderVisitedList();
+}
+
+// ─── Search ────────────────────────────────────────────────────
+let pendingPlace=null;
+
+async function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  const btn=document.getElementById('searchBtn');
+  btn.disabled=true; btn.textContent='…';
+  const resultsEl=document.getElementById('searchResults');
+  resultsEl.innerHTML='<div class="sr-empty">搜尋中…</div>';
+  resultsEl.style.display='block';
+  try{
+    const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=zh-TW,zh`;
+    const res=await fetch(url,{headers:{'Accept-Language':'zh-TW,zh;q=0.9'}});
+    const data=await res.json();
+    renderSearchResults(data);
+  }catch(err){
+    resultsEl.innerHTML='<div class="sr-empty">搜尋失敗，請確認網路連線</div>';
+  }finally{
+    btn.disabled=false; btn.textContent='🔍';
+  }
+}
+
+function renderSearchResults(data){
+  const el=document.getElementById('searchResults');
+  el.innerHTML='';
+  if(!data.length){ el.innerHTML='<div class="sr-empty">找不到結果，請換個關鍵字</div>'; return; }
+  data.forEach(r=>{
+    const parts=r.display_name.split(',');
+    const name=parts[0].trim();
+    const detail=parts.slice(1,3).join(',').trim();
+    const item=document.createElement('div');
+    item.className='sr-item';
+    item.innerHTML=`<div class="sr-name">${esc(name)}</div><div class="sr-detail">${esc(detail)}</div>`;
+    item.onclick=()=>openModal({name,displayName:r.display_name,lat:parseFloat(r.lat),lon:parseFloat(r.lon)});
+    el.appendChild(item);
+  });
+}
+
+function openModal(place){
+  pendingPlace=place;
+  document.getElementById('modalName').value=place.name;
+  document.getElementById('modalSub').textContent=place.displayName.slice(0,60)+(place.displayName.length>60?'…':'');
+  document.getElementById('modalDate').value=new Date().toISOString().slice(0,7);
+  document.getElementById('modalNotes').value='';
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); pendingPlace=null; }
+
+function confirmAdd(){
+  if(!pendingPlace) return;
+  const name=document.getElementById('modalName').value.trim()||pendingPlace.name;
+  const date=document.getElementById('modalDate').value;
+  const notes=document.getElementById('modalNotes').value.trim();
+  visited.push({id:Date.now(),name,displayName:pendingPlace.displayName,lat:pendingPlace.lat,lon:pendingPlace.lon,date,notes});
+  saveVisited(); renderVisitedMarkers(); renderVisitedList();
+  closeModal();
+}
+
+// ─── Misc ──────────────────────────────────────────────────────
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+document.getElementById('mapContainer').addEventListener('click',e=>{
+  if(!e.target.closest('.marker-group')&&!e.target.closest('.visited-marker')){ hideCard(); hideVisitedCard(); }
+});
+document.getElementById('searchInput').addEventListener('keydown',e=>{ if(e.key==='Escape') document.getElementById('searchResults').style.display='none'; });
+document.addEventListener('click',e=>{ if(!e.target.closest('.search-section')) document.getElementById('searchResults').style.display='none'; });
+
+// Particles
+const pc=document.getElementById('particles');
 for(let i=0;i<18;i++){
-  const p = document.createElement('div');
-  p.className = 'particle';
-  const sz = 2+Math.random()*4;
-  p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*8}s`;
+  const p=document.createElement('div'); p.className='particle';
+  const sz=2+Math.random()*4;
+  p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*8}s`;
   pc.appendChild(p);
 }
+
+// Init
+renderVisitedMarkers();
+renderVisitedList();
 </script>
 </body>
 </html>
