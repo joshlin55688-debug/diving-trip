@@ -374,10 +374,10 @@
     <div class="card-title"><span>🛏️</span> 住宿</div>
     <div class="radio-group" id="roomType">
       <label class="radio-option" onclick="setRoom(this)">
-        <input type="radio" name="room" value="700"> 女生床位 <span class="price-tag">700/晚</span>
+        <input type="radio" name="room" value="700"> 假日住宿 <span class="price-tag">700/晚</span>
       </label>
       <label class="radio-option" onclick="setRoom(this)">
-        <input type="radio" name="room" value="600"> 混合床位 <span class="price-tag">600/晚</span>
+        <input type="radio" name="room" value="600"> 平日住宿 <span class="price-tag">600/晚</span>
       </label>
       <label class="radio-option selected" onclick="setRoom(this)">
         <input type="radio" name="room" value="0" checked> 不住宿
@@ -688,7 +688,7 @@
     const discount = checked('studentDiscount');
     const nights = val('nights');
     const roomPrice = selectedRoom;
-    const roomName = roomPrice === 700 ? '女生床位' : roomPrice === 600 ? '混合床位' : null;
+    const roomName = roomPrice === 700 ? '假日住宿' : roomPrice === 600 ? '平日住宿' : null;
 
     const sections = [];
 
