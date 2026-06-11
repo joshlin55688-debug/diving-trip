@@ -15,7 +15,18 @@
       padding: 24px 16px 60px;
     }
 
-    .container { max-width: 680px; margin: 0 auto; }
+    .container { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+
+    #oceanCanvas, #oceanFrontCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      image-rendering: pixelated;
+    }
+    #oceanFrontCanvas { z-index: 2; }
 
     header {
       text-align: center;
@@ -30,12 +41,11 @@
     header p { color: #93c5fd; margin-top: 6px; font-size: 0.9rem; }
 
     .card {
-      background: rgba(255,255,255,0.07);
+      background: rgba(10,28,52,0.42);
       border: 1px solid rgba(125,211,252,0.2);
       border-radius: 16px;
       padding: 20px 24px;
       margin-bottom: 16px;
-      backdrop-filter: blur(10px);
     }
 
     .card-title {
@@ -195,7 +205,8 @@
       padding: 24px;
       position: sticky;
       bottom: 16px;
-      backdrop-filter: blur(20px);
+      background-color: rgba(10,28,52,0.72);
+      backdrop-filter: blur(3px);
     }
     .summary-title {
       font-size: 1rem;
@@ -354,6 +365,8 @@
   </style>
 </head>
 <body>
+<canvas id="oceanCanvas"></canvas>
+<canvas id="oceanFrontCanvas"></canvas>
 <div class="container">
   <header>
     <h1>🤿 琉潛潛水行程費用計算器</h1>
@@ -799,6 +812,534 @@
   }
 
   calc();
+
+  /* ============================================================
+     像素海底背景：鯨鯊、鬼蝠魟、海龜、槌頭鯊、翻車魚、小魚群、水母
+     ============================================================ */
+  (function () {
+    const cv = document.getElementById('oceanCanvas');
+    const ctx = cv.getContext('2d');
+    const fcv = document.getElementById('oceanFrontCanvas');
+    const fctx = fcv.getContext('2d');
+    let W = 0, H = 0;
+    let floorCanvas = null;
+
+    // 種子隨機（讓沙地花紋固定不閃爍）
+    function seeded(seed) {
+      let s = seed >>> 0;
+      return function () {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      };
+    }
+
+    // 把字串陣列轉成像素 sprite（1 字元 = 1 像素）
+    function sprite(rows, pal) {
+      const h = rows.length, w = Math.max(...rows.map(r => r.length));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const x = c.getContext('2d');
+      rows.forEach((row, ry) => {
+        for (let rx = 0; rx < row.length; rx++) {
+          const p = pal[row[rx]];
+          if (p) { x.fillStyle = p; x.fillRect(rx, ry, 1, 1); }
+        }
+      });
+      return c;
+    }
+
+    /* ---------- 鯨鯊（高解析度：描邊、背脊稜線、鰓裂、雙排斑點） ---------- */
+    const whaleShark = sprite([
+      "......................................................DDD....",
+      "...........................DD.......................DDDD.....",
+      "..........................DDDD.....................DDDD......",
+      ".........................DDBBDD...................DDDD.......",
+      ".........DDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDD...DDDD........",
+      ".......DBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBBD.DDDD........",
+      ".....DBSBBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBSBBBBDDDDD........",
+      "....DBBRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRBBBBBDDD.........",
+      "...DBESBMMMSGMGMGMSMMMSMMMSMMMSMMMSMMMSMMMSMMBBBBDDD.........",
+      "...DBMMMMMMSGMGMGMMMMSMMMSMMMSMMMSMMMSMMMSMMMBBBDDDD.........",
+      "...DWVVVVVVVGVGVGVVVVVVVVVVVVVVVVVVVVVVVVVVBBBBDDDDD.........",
+      "....DWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWBBBBD...DDD.........",
+      ".....DWWWWWWDDWWWWWWWWWWWWWDDWWWWWWWWWWBBBD.......DD.........",
+      ".......DWWWDDDDWWWWWWWWWWWDDDDWWWWWWBBBD..........D..........",
+      "............DDDD............DDDD..............................",
+      ".............DDD.............DDD..............................",
+    ], {
+      D: '#14304a', B: '#2e5871', M: '#3f7390', S: '#c2e9f5',
+      R: '#5e9ab5', W: '#e8f3f8', V: '#b5d2de', E: '#050f1a', G: '#1c3c56',
+    });
+
+    /* ---------- 鬼蝠魟 Manta（高解析度雙影格拍翅、頭鰭、白腹） ---------- */
+    const mantaPal = { D: '#0f2438', K: '#1d3850', T: '#2a4d6e', W: '#d8eaf2', w: '#a8c4d4', E: '#04101c' };
+    const mantaUp = sprite([
+      "...............DDD............................",
+      ".............DDKKD............................",
+      "............DKKKKD............................",
+      "...........DKKKKKD............................",
+      "..........DKKKKKKD............................",
+      ".........DKKKKKKKD............................",
+      "....DD..DKKKKKKKKDD...........................",
+      "...DKKD.DKKKKKKKKKKDD.........................",
+      "...DKD.DKKKKKKKKKKKKKDDD......................",
+      "..DKKDDKKKKKKKKKKKKKKKKKDDDD..................",
+      "..DKEKKKTTTTTTTTTTTTTTTTTTTKDDDDDDDDDDDDDDDD..",
+      "..DKKWwWWWWWWWWWWWWTTTTTTTKKD.................",
+      "...DDWWWWWWWWWWWWWTTTTTKKDD...................",
+      ".....DwWWWWWWWWWTTTTKKDD......................",
+      ".......DwWWWWWTTTKKDD.........................",
+      ".........DwWWTTKDD............................",
+      "...........DDDD...............................",
+    ], mantaPal);
+    const mantaDown = sprite([
+      "....DD.........................................",
+      "...DKKD..DDDD..................................",
+      "...DKD..DKKKKDDD...............................",
+      "..DKKDDKKKKKKKKKKDDDD..........................",
+      "..DKEKKKTTTTTTTTTTTTTKDDDDDDDDDDDDDDDDDD.......",
+      "..DKKWwWWWWWWWWWWTTTTTTKKDD....................",
+      "...DDWWWWWWWWWWWWWWTTTTTKKDDD..................",
+      "....DwWWWWWWWWWWWWWWWTTTTKKD...................",
+      ".....DDwWWWWWWWWWWWWWWWTTKKD...................",
+      ".......DDwWWWWWWWWWWWWWWKKD....................",
+      ".........DDWWWWWWWWWWWKKD......................",
+      "...........DDWWWWWWWKKD........................",
+      ".............DDWWWKKD..........................",
+      "...............DDKD............................",
+      "................DD.............................",
+    ], mantaPal);
+
+    /* ---------- 海龜（高解析度：殼頂高光、鱗甲、腹甲黃邊、前後鰭肢） ---------- */
+    const turtle = sprite([
+      "..........DDDDDDDDDD.............",
+      "........DDGGLLGGLLGGDD...........",
+      ".......DGLLGGLLGGLLGGGDD.........",
+      "......DGLGGgGGgGGgGGLLGGD........",
+      ".....DGLGgGGgGGgGGgGGgGGGD.......",
+      "..DDDDGGgGGgGGgGGgGGgGGgGGDD.....",
+      ".DNNNDYYYYYYYYYYYYYYYYYYYYYDD....",
+      "DNENNNDYYYYYYYYYYYYYYYYYYYDnnD...",
+      "DNNNNDDDDDDDDDDDDDDDDDDDDDnnnD...",
+      ".DDD..DnnnnD.........DnnnnD......",
+      "......DnnnnnD.........DnnnD......",
+      ".......DnnnnnD.........DDD.......",
+      "........DDnnnD...................",
+      "..........DDD....................",
+    ], {
+      D: '#0e2a1c', G: '#3f8a5c', g: '#2c6a45', L: '#5aa873',
+      Y: '#cdb56a', N: '#9ecf8f', n: '#6fae7e', E: '#06180e',
+    });
+
+    /* ---------- 槌頭鯊（高解析度：T 字頭、背鰭、胸鰭、新月尾） ---------- */
+    const hammerhead = sprite([
+      ".................DD.........................",
+      ".DDD.............DDD........................",
+      ".DHHD...........DDHHD..............DDD......",
+      ".DHHHDDDDDDDDDDDHHHHHDDDDD.........DHHD.....",
+      "DEHHHHHHHHHHHHHHHHHHHHHHHHHDDDD....DHHHD....",
+      "DDHHmmmmmmmmmmmmmmmmmmmmmmmmmmDDDDDDHHHHD...",
+      ".DHHmWWWWWWWWWWWWWWWWWWWWmmmmmmmmDDDHHHDD...",
+      ".DHHDWWWWWWWWWWWWWWWWWWWmmmmmDDDD..DHHD.....",
+      ".DDD.DWWWDDWWWWWWWWWWWmmmDD........DHD......",
+      "..D...DWWWDDDWWWWWmmDDD.............DD......",
+      "........DDD.DDD.............................",
+      ".............DD.............................",
+    ], { D: '#10293d', H: '#587f9a', m: '#6f96ad', W: '#dde9f0', E: '#04101c' });
+
+    /* ---------- 翻車魚 Mola mola（高解析度：上下大鰭、舵鰭、立體明暗） ---------- */
+    const mola = sprite([
+      "............DDD.........",
+      "...........DFFD.........",
+      "...........DFFD.........",
+      "..........DFFFD.........",
+      "..........DFFD..........",
+      ".........DDFFD..........",
+      "........DObFFDD.........",
+      "......DDOOObODDD........",
+      "....DDOooOOOOOOODD......",
+      "...DOooOOOOOOOOOOODD....",
+      "..DOoEOOOOOOOOOOOOODDD..",
+      "..DOooOOOOOOOOOOObbFFD..",
+      "..DOoOOOOOOOOOOOObFFFD..",
+      "..DOOOOOOOOOOOOObbFFD...",
+      "...DObOOOOOOOOOObFFD....",
+      "....DbbWWWWWWObbDFD.....",
+      "......DDWWWWWbbD.DD.....",
+      "........DDWWbDD.........",
+      ".........DFFD...........",
+      ".........DFFD...........",
+      "..........DFFD..........",
+      "..........DDD...........",
+    ], {
+      D: '#1b3a4d', O: '#7d99ab', o: '#9db4c2', b: '#5e7f93',
+      W: '#d5e4ec', E: '#03111c', F: '#2f5168',
+    });
+
+    /* ---------- 長尾鯊（招牌鐮刀狀長上尾葉、大眼） ---------- */
+    const thresher = sprite([
+      "......................................................DD.",
+      "...................................................DDDD..",
+      "................................................DDDTT....",
+      ".............................................DDDTTT......",
+      "..........................................DDDTTT.........",
+      "..............DDD........................DDTTT...........",
+      ".............DTTTD.....................DDTT..............",
+      "......DDDDDDDTTTTTDDDDDD..............DTTT...............",
+      "....DDTTTTTTTTTTTTTTTTTTDDDD.........DTTD................",
+      "..DDTTTTTTTTTTTTTTTTTTTTTTTTDDDDD...DDTD.................",
+      ".DTeETTTttttttttttttttttttttttttDDDDDTTD.................",
+      ".DTTTtWWWWWWWWWWWWWWWWWttttttttttDDDTDD..................",
+      "..DWWWWWWWWWWWWWWWWWWWWWWttttDDDD..DDD...................",
+      "...DDWWWDDWWWWWWWWWWWWWtttDDD............................",
+      ".....DWWWDDDWWWWWWWttDDD.................................",
+      "........DDD..DDDDDD......................................",
+    ], {
+      D: '#0f2940', T: '#3a6a8f', t: '#4f85a8',
+      W: '#e2eef5', E: '#061320', e: '#cfe2ec',
+    });
+
+    /* ---------- 藍鯨（最大隻：腹部摺溝、小背鰭、寬尾鰭、長嘴線） ---------- */
+    const blueWhale = sprite([
+      "...............................................DD........................",
+      "..............................................DBBD.......................",
+      ".....DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDBBBBDDD............DDD.....",
+      "...DDBBMBBBMBBBBMBBBMBBBBMBBBMBBBBMBBBMBBBBMBBBBBBBBDDDD......DDDBBD.....",
+      "..DBBMBBBMBBBBMBBBMBBBBMBBBMBBBBMBBBMBBBBMBBBMBBBBBBBBBDDDDDDDBBBBD......",
+      ".DBEBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDD......",
+      ".DBDDDDDDDDDDDDDDDDDDDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDDBBBBBBBDD.....",
+      ".DPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPBBBBBBBBBDDDDD....DDBBBBBDD.....",
+      "..DPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPpPBBBBBDDDDD..............DDDDD......",
+      "...DPpPpPpPpPpPpPpPpPpPpPpPpPpPpPBBBBDDD.................................",
+      "....DDPpPpPpPpPpPpPpPpPpPpPBBBDDD........................................",
+      "......DDPPDDPpPpPpPpPPDDDDD..............................................",
+      ".........DPPPDDDDDDD.....................................................",
+      "..........DDPPD..........................................................",
+      "............DDD..........................................................",
+    ], {
+      D: '#122c44', B: '#5b7f9e', M: '#6d92ad',
+      P: '#c8d8e2', p: '#9ab4c4', E: '#04111e',
+    });
+
+    /* ---------- 儒艮（圓潤身形、下垂吻部、槳狀尾鰭） ---------- */
+    const dugong = sprite([
+      "..........DDDDDDDDD...................",
+      ".......DDDGGGGGGGGGDDDD...............",
+      ".....DDGGLLGGGGGGGGGGGGDDD............",
+      "....DGGLLGGGGGGGGGGGGGGGGDDD..........",
+      "..DDGGLGGGGGGGGGGGGGGGGGGGGDDD....DD..",
+      ".DSGGEGGGGGGGGGGGGGGGGGGGGGGGDD..DGD..",
+      ".DSSGGGGGGGGGGGGGGGGGGGGGGGGGGDDDGGD..",
+      "DSSSGGGWWWWWWWWWWWWWWWggGGGGGGGGDGGD..",
+      "DSSSDGWWWWWWWWWWWWWWWWWggGGGGDDDDGD...",
+      ".DSSDWWWWWWWWWWWWWWWWWWWggGDDD..DGGD..",
+      "..DDDWWWDWWWWWWWWWWWWggGDD......DGD...",
+      "....DWWWDDWWWWWWWWggGDD.........DD....",
+      ".....DDDD.DDDDDDDDDD..................",
+      "......DD..............................",
+    ], {
+      D: '#3a4d52', G: '#8fa3a8', g: '#70878d', L: '#b4c4c8',
+      W: '#d8e2e4', S: '#a8b8bc', E: '#101e22',
+    });
+
+    /* ---------- 小魚（高解析度：描邊、高光、分叉尾） ---------- */
+    const fish = sprite([
+      "...DDDD.....",
+      "..DFFFFD..D.",
+      ".DFWFFFFD.DD",
+      "DEFWFFFFFDfD",
+      "DFFFFFFFFDfD",
+      ".DFFFFFfD.DD",
+      "..DffffD..D.",
+      "...DDDD.....",
+    ], { D: '#7a4a10', F: '#ffc857', f: '#e8973a', W: '#ffe3a0', E: '#2a1804' });
+
+    /* ---------- 水母（高解析度雙影格脈動：傘頂高光、長觸手） ---------- */
+    const jellyPal = {
+      P: 'rgba(248,170,214,0.9)', p: 'rgba(248,170,214,0.55)',
+      q: 'rgba(248,170,214,0.32)', L: 'rgba(255,222,240,0.95)',
+    };
+    const jelly1 = sprite([
+      "....PPPPPP....",
+      "..PPLLPPPPPP..",
+      ".PPLLPPPPPPPP.",
+      ".PPLPPPPPPPPP.",
+      "PPPPPPPPPPPPPP",
+      "PpPpPpPpPpPpPp",
+      ".p..p..p..p...",
+      ".p..p...p..p..",
+      "..p..p..p..p..",
+      "..p...p...p...",
+      "...q..q..q....",
+      "...q...q..q...",
+      "....q..q......",
+    ], jellyPal);
+    const jelly2 = sprite([
+      "...PPPPPPPP...",
+      ".PPLLPPPPPPPP.",
+      "PPLLPPPPPPPPPP",
+      "PpPpPpPpPpPpPp",
+      ".pp..pp..pp...",
+      "..p...p...p...",
+      ".p...p...p..p.",
+      "..q..q...q....",
+      "...q..q...q...",
+      "..q....q..q...",
+      "....q..q......",
+    ], jellyPal);
+
+    /* ---------- 游動生物 ---------- */
+    // band: 活動深度（佔螢幕高度比例）
+    const swimmers = [];
+    function addSwimmer(opt) {
+      const e = Object.assign({
+        frames: [], fi: 0, ft: 0, frameDur: 0.4,
+        dir: Math.random() < 0.5 ? -1 : 1,
+        speed: 20, scale: 4, alpha: 1,
+        bobAmp: 6, bobSpd: 0.8 + Math.random() * 0.6,
+        phase: Math.random() * 6.28,
+        band: [0.1, 0.6],
+        offsets: null,
+      }, opt);
+      e.x = Math.random() * (W || innerWidth);
+      e.yBase = pickY(e);
+      swimmers.push(e);
+    }
+    function pickY(e) {
+      return H * (e.band[0] + Math.random() * (e.band[1] - e.band[0]));
+    }
+    function respawn(e) {
+      const w = e.frames[0].width * e.scale;
+      e.x = e.dir > 0 ? -w - 20 : W + 20;
+      e.yBase = pickY(e);
+    }
+
+    function initSwimmers() {
+      swimmers.length = 0;
+      // 鯨鯊：最大隻、慢慢巡游
+      addSwimmer({ frames: [whaleShark], scale: 5, speed: 11, band: [0.12, 0.42], bobAmp: 10, bobSpd: 0.4, alpha: 0.96 });
+      // 鬼蝠魟 ×2（一近一遠）
+      addSwimmer({ frames: [mantaUp, mantaDown], frameDur: 0.45, scale: 4, speed: 24, band: [0.18, 0.55], bobAmp: 14, bobSpd: 0.7 });
+      addSwimmer({ frames: [mantaUp, mantaDown], frameDur: 0.55, scale: 2, speed: 16, band: [0.08, 0.45], bobAmp: 10, alpha: 0.5 });
+      // 海龜
+      addSwimmer({ frames: [turtle], scale: 4, speed: 13, band: [0.3, 0.68], bobAmp: 8, bobSpd: 0.5 });
+      // 槌頭鯊：游最快
+      addSwimmer({ frames: [hammerhead], scale: 4, speed: 34, band: [0.1, 0.5], bobAmp: 5 });
+      // 翻車魚：幾乎用飄的
+      addSwimmer({ frames: [mola], scale: 3, speed: 7, band: [0.25, 0.55], bobAmp: 16, bobSpd: 0.35, alpha: 0.9 });
+      // 長尾鯊：長尾巴、速度快
+      addSwimmer({ frames: [thresher], scale: 4, speed: 30, band: [0.08, 0.45], bobAmp: 6 });
+      // 藍鯨：全場最大、貼近水面慢游
+      addSwimmer({ frames: [blueWhale], scale: 6, speed: 8, band: [0.04, 0.28], bobAmp: 12, bobSpd: 0.3, alpha: 0.92 });
+      // 儒艮：在下層海草區附近覓食
+      addSwimmer({ frames: [dugong], scale: 4, speed: 10, band: [0.48, 0.72], bobAmp: 6, bobSpd: 0.45 });
+      // 小魚群 ×2
+      const school = [[0, 0], [16, 9], [13, -10], [30, 4], [26, 17], [37, -7], [46, 8], [41, 19]];
+      addSwimmer({ frames: [fish], scale: 2, speed: 38, band: [0.15, 0.6], bobAmp: 4, offsets: school });
+      addSwimmer({ frames: [fish], scale: 1, speed: 30, band: [0.2, 0.65], bobAmp: 4, offsets: school, alpha: 0.55 });
+    }
+
+    /* ---------- 水母（往上飄） ---------- */
+    const jellies = [];
+    function newJelly(randomY) {
+      return {
+        x: Math.random() * W,
+        y: randomY ? Math.random() * H : H + 30,
+        v: 9 + Math.random() * 8,
+        scale: 3 + Math.floor(Math.random() * 2),
+        ph: Math.random() * 6.28,
+        fi: 0, ft: 0,
+      };
+    }
+    function initJellies() {
+      jellies.length = 0;
+      for (let i = 0; i < 3; i++) jellies.push(newJelly(true));
+    }
+
+    /* ---------- 氣泡 ---------- */
+    const bubbles = [];
+    function newBubble(randomY) {
+      return {
+        x: Math.random() * W,
+        y: randomY ? Math.random() * H : H + 10,
+        s: 2 + Math.floor(Math.random() * 3) * 2,
+        v: 22 + Math.random() * 34,
+        ph: Math.random() * 6.28,
+      };
+    }
+    function initBubbles() {
+      bubbles.length = 0;
+      for (let i = 0; i < 14; i++) bubbles.push(newBubble(true));
+    }
+
+    /* ---------- 沙地 + 珊瑚（靜態，預先畫好） ---------- */
+    const PXF = 5; // 沙地像素大小
+    function buildFloor() {
+      const rows = 6;
+      floorCanvas = document.createElement('canvas');
+      floorCanvas.width = W;
+      floorCanvas.height = rows * PXF;
+      const f = floorCanvas.getContext('2d');
+      const rnd = seeded(20260611);
+      const sand = ['#b08f55', '#c2a263', '#9c7d4a', '#caa86b'];
+      for (let r = 0; r < rows; r++) {
+        for (let x = 0; x < W; x += PXF) {
+          // 上緣鋸齒
+          if (r === 0 && rnd() < 0.45) continue;
+          f.fillStyle = sand[Math.floor(rnd() * sand.length)];
+          f.fillRect(x, r * PXF, PXF, PXF);
+        }
+      }
+      // 珊瑚
+      const coralCols = ['#e0719a', '#e89c4f', '#9b6fd0'];
+      const count = Math.max(2, Math.floor(W / 280));
+      for (let i = 0; i < count; i++) {
+        const cx = Math.floor(rnd() * (W - 60)) + 20;
+        const col = coralCols[i % coralCols.length];
+        f.fillStyle = col;
+        const baseY = PXF; // 從沙地上緣長出來
+        const branches = 2 + Math.floor(rnd() * 2);
+        for (let b = 0; b < branches; b++) {
+          const bx = cx + b * PXF * 2 - branches * PXF;
+          const hgt = 2 + Math.floor(rnd() * 3);
+          for (let s = 0; s < hgt; s++) f.fillRect(bx, baseY - s * PXF, PXF, PXF);
+          f.fillRect(bx + (rnd() < 0.5 ? -PXF : PXF), baseY - hgt * PXF, PXF, PXF);
+        }
+      }
+    }
+
+    /* ---------- 海草（動態搖曳） ---------- */
+    let weeds = [];
+    function buildWeeds() {
+      weeds = [];
+      const rnd = seeded(77);
+      const count = Math.max(4, Math.floor(W / 110));
+      for (let i = 0; i < count; i++) {
+        weeds.push({
+          x: Math.floor(rnd() * W),
+          segs: 6 + Math.floor(rnd() * 7),
+          ph: rnd() * 6.28,
+          col: rnd() < 0.5 ? '#1f7a4d' : '#2c9a62',
+        });
+      }
+    }
+    function drawWeeds(t) {
+      const P = 5;
+      for (const wd of weeds) {
+        for (let s = 0; s < wd.segs; s++) {
+          const sway = Math.sin(t * 1.1 + wd.ph + s * 0.5) * s * 0.45 * P * 0.4;
+          ctx.fillStyle = s % 2 ? wd.col : '#1a6340';
+          ctx.fillRect(Math.round(wd.x + sway), H - PXF * 2 - s * P, P, P);
+        }
+      }
+    }
+
+    /* ---------- 光束 ---------- */
+    function drawRays(t) {
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const bx = ((t * 9 + i * (W + 240) / 3) % (W + 240)) - 120;
+        const g = ctx.createLinearGradient(0, 0, 0, H * 0.75);
+        g.addColorStop(0, 'rgba(125,211,252,0.07)');
+        g.addColorStop(1, 'rgba(125,211,252,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(bx, 0);
+        ctx.lineTo(bx + 70, 0);
+        ctx.lineTo(bx + 150, H * 0.75);
+        ctx.lineTo(bx + 30, H * 0.75);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    /* ---------- 主迴圈 ---------- */
+    function drawSwimmer(e, t) {
+      const img = e.frames[e.fi];
+      const w = img.width * e.scale, h = img.height * e.scale;
+      const y = e.yBase + Math.sin(t * e.bobSpd + e.phase) * e.bobAmp;
+      ctx.save();
+      ctx.globalAlpha = e.alpha;
+      ctx.imageSmoothingEnabled = false;
+      const draws = e.offsets || [[0, 0]];
+      for (let i = 0; i < draws.length; i++) {
+        const dx = draws[i][0] * e.scale, dy = draws[i][1] * e.scale;
+        const my = e.offsets ? y + dy + Math.sin(t * 2 + i) * 3 : y;
+        if (e.dir > 0) {
+          ctx.save();
+          ctx.translate(e.x + dx + w, my);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0, w, h);
+          ctx.restore();
+        } else {
+          ctx.drawImage(img, e.x - dx, my, w, h);
+        }
+      }
+      ctx.restore();
+    }
+
+    let last = performance.now();
+    function tick(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const t = now / 1000;
+      ctx.clearRect(0, 0, W, H);
+
+      drawRays(t);
+      if (floorCanvas) ctx.drawImage(floorCanvas, 0, H - floorCanvas.height);
+      drawWeeds(t);
+
+      for (const e of swimmers) {
+        e.x += e.speed * e.dir * dt;
+        e.ft += dt;
+        if (e.frames.length > 1 && e.ft > e.frameDur) { e.ft = 0; e.fi = (e.fi + 1) % e.frames.length; }
+        const w = e.frames[0].width * e.scale;
+        const extra = e.offsets ? 40 * e.scale : 0;
+        if (e.dir > 0 && e.x > W + 30) respawn(e);
+        if (e.dir < 0 && e.x < -w - extra - 30) respawn(e);
+        drawSwimmer(e, t);
+      }
+
+      ctx.imageSmoothingEnabled = false;
+      for (const j of jellies) {
+        j.y -= j.v * dt;
+        j.ft += dt;
+        if (j.ft > 0.55) { j.ft = 0; j.fi = (j.fi + 1) % 2; }
+        if (j.y < -60) Object.assign(j, newJelly(false));
+        const img = j.fi ? jelly2 : jelly1;
+        const jx = j.x + Math.sin(t * 0.8 + j.ph) * 14;
+        ctx.drawImage(img, Math.round(jx), Math.round(j.y), img.width * j.scale, img.height * j.scale);
+      }
+
+      fctx.clearRect(0, 0, W, H);
+      for (const b of bubbles) {
+        b.y -= b.v * dt;
+        if (b.y < -10) Object.assign(b, newBubble(false));
+        const bx = b.x + Math.sin(t * 2 + b.ph) * 6;
+        fctx.fillStyle = 'rgba(190,230,250,0.35)';
+        fctx.fillRect(Math.round(bx), Math.round(b.y), b.s, b.s);
+      }
+
+      if (animate) requestAnimationFrame(tick);
+    }
+
+    function resize() {
+      W = cv.width = fcv.width = innerWidth;
+      H = cv.height = fcv.height = innerHeight;
+      buildFloor();
+      buildWeeds();
+    }
+    addEventListener('resize', resize);
+
+    resize();
+    initSwimmers();
+    initJellies();
+    initBubbles();
+
+    const animate = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    tick(performance.now());
+  })();
 </script>
 </body>
 </html>
